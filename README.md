@@ -8,9 +8,7 @@ The platform simplifies textile inspection by allowing users to upload fabric im
 
 ## 🔗 Links
 
-- **Live Hosted Website (Frontend):** [Deployed on Vercel] *(Insert your Vercel URL here)*
-- **Live API (Backend):** [Deployed on Render] *(Insert your Render URL here)*
-- **GitHub Repository:** [Insert Repo URL here]
+- **Live Hosted Website:** https://thread-county-frontend.vercel.app/
 
 ---
 
@@ -169,4 +167,4 @@ The backend is built with FastAPI. Complete interactive API documentation (Swagg
 4. `uvicorn app.main:app --reload`
 
 ---
-*Built for the Hackathon - ThreadCounty Team*
+

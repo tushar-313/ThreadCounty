@@ -30,6 +30,16 @@ async def upload_fabric(
         raise HTTPException(status_code=400, detail=f"File size exceeds {settings.max_upload_size_mb}MB limit")
 
     supabase = get_supabase()
+    file_size_mb = file_size_kb / 1024
+    used_mb = 0
+    if supabase:
+        profile_res = supabase.table("profiles").select("storage_used_mb, storage_limit_mb").eq("id", user["id"]).single().execute()
+        if profile_res.data:
+            used_mb = profile_res.data.get("storage_used_mb", 0) or 0
+            limit_mb = profile_res.data.get("storage_limit_mb", 100) or 100
+            if used_mb + file_size_mb > limit_mb:
+                raise HTTPException(status_code=400, detail="Storage limit exceeded. Please upgrade your plan.")
+
     upload_id = str(uuid.uuid4())
     file_path = f"{user['id']}/{upload_id}/{file.filename}"
 
@@ -89,6 +99,7 @@ async def upload_fabric(
             "action": "upload_analyzed",
             "details": {"upload_id": upload_id, "report_id": report_id},
         }).execute()
+        supabase.table("profiles").update({"storage_used_mb": used_mb + file_size_mb}).eq("id", user["id"]).execute()
 
     return {
         "upload": {**upload_record, "status": "completed"},
@@ -112,6 +123,17 @@ async def delete_upload(upload_id: str, user: dict = Depends(get_current_user)):
     if not supabase:
         return {"message": "Upload deleted"}
 
+    upload_res = supabase.table("uploads").select("file_size_kb").eq("id", upload_id).eq("user_id", user["id"]).single().execute()
+    
     supabase.table("reports").delete().eq("upload_id", upload_id).execute()
     supabase.table("uploads").delete().eq("id", upload_id).eq("user_id", user["id"]).execute()
+    
+    if upload_res.data:
+        file_size_mb = (upload_res.data.get("file_size_kb") or 0) / 1024
+        profile_res = supabase.table("profiles").select("storage_used_mb").eq("id", user["id"]).single().execute()
+        if profile_res.data:
+            used_mb = profile_res.data.get("storage_used_mb", 0) or 0
+            new_storage_mb = max(0, used_mb - file_size_mb)
+            supabase.table("profiles").update({"storage_used_mb": new_storage_mb}).eq("id", user["id"]).execute()
+
     return {"message": "Upload and associated reports deleted"}

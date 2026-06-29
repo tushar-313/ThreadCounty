@@ -13,6 +13,8 @@ router = APIRouter(prefix="/users", tags=["Users"])
 class ProfileUpdate(BaseModel):
     full_name: Optional[str] = None
     avatar_url: Optional[str] = None
+    subscription_plan: Optional[str] = None
+    storage_limit_mb: Optional[int] = None
 
 
 @router.get("/me")

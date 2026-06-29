@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { api } from "@/lib/api";
 import type { AdminStats, Profile } from "@/types";
@@ -181,8 +182,11 @@ export default function AdminPage() {
                       <TableCell>{user.email}</TableCell>
                       <TableCell><Badge variant={user.role === "admin" ? "default" : "secondary"}>{user.role}</Badge></TableCell>
                       <TableCell className="capitalize">{user.subscription_plan}</TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="outline" size="sm" onClick={() => handleRoleChange(user.id, user.role || "user")}>
+                      <TableCell className="text-right flex items-center justify-end gap-2">
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href={`/admin/users/${user.id}`}>View Details</Link>
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleRoleChange(user.id, user.role || "user")}>
                           Make {user.role === "admin" ? "User" : "Admin"}
                         </Button>
                       </TableCell>

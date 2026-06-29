@@ -27,10 +27,19 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      
+      let finalRedirect = redirect;
+      if (data.user) {
+        const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).single();
+        if (profile?.role === "admin") {
+          finalRedirect = "/admin";
+        }
+      }
+      
       toast.success("Welcome back!");
-      router.push(redirect);
+      router.push(finalRedirect);
       router.refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Login failed");

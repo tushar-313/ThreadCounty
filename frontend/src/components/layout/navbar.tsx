@@ -12,6 +12,7 @@ const navLinks = [
   { href: "/#features", label: "Features" },
   { href: "/#workflow", label: "How It Works" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/blog", label: "Blog" },
   { href: "/about", label: "About" },
   { href: "/faq", label: "FAQ" },
   { href: "/contact", label: "Contact" },
@@ -62,6 +63,7 @@ export function Navbar() {
         </div>
 
         <div className="hidden items-center gap-2 md:flex">
+          <div id="google_translate_element" className="scale-90 origin-right mr-2 flex items-center" suppressHydrationWarning></div>
           <ThemeToggle />
           <Button variant="ghost" asChild>
             <Link href="/login">Log in</Link>

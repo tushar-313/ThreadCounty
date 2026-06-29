@@ -26,6 +26,7 @@ export default function ProfilePage() {
   const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const supabase = createClient();
 
@@ -65,6 +66,28 @@ export default function ProfilePage() {
       toast.error("Failed to update profile");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingAvatar(true);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      setUploadingAvatar(false);
+      return;
+    }
+
+    try {
+      const data = await api.uploadAvatar(session.access_token, file) as { profile: Profile };
+      setProfile(data.profile);
+      toast.success("Profile picture updated!");
+    } catch {
+      toast.error("Failed to upload profile picture");
+    } finally {
+      setUploadingAvatar(false);
     }
   };
 
@@ -108,11 +131,27 @@ export default function ProfilePage() {
         <p className="mt-1 text-muted-foreground">Manage your account and preferences.</p>
       </motion.div>
 
-      <div className="mt-8 flex items-center gap-4">
-        <Avatar className="h-20 w-20">
-          <AvatarImage src={profile?.avatar_url || undefined} />
-          <AvatarFallback className="bg-primary/10 text-primary text-xl">{initials}</AvatarFallback>
-        </Avatar>
+      <div className="mt-8 flex items-center gap-6">
+        <div className="relative group">
+          <Avatar className="h-24 w-24 border-2 border-background shadow-sm">
+            <AvatarImage src={profile?.avatar_url || undefined} />
+            <AvatarFallback className="bg-primary/10 text-primary text-2xl">{initials}</AvatarFallback>
+          </Avatar>
+          <Label 
+            htmlFor="avatar-upload" 
+            className="absolute bottom-0 right-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-transform hover:scale-105"
+          >
+            {uploadingAvatar ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
+          </Label>
+          <input 
+            type="file" 
+            id="avatar-upload" 
+            className="hidden" 
+            accept="image/png, image/jpeg, image/jpg" 
+            onChange={handleAvatarUpload} 
+            disabled={uploadingAvatar}
+          />
+        </div>
         <div>
           <h2 className="text-xl font-semibold">{profile?.full_name || "User"}</h2>
           <p className="text-muted-foreground">{profile?.email}</p>

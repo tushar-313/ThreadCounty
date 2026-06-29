@@ -13,6 +13,7 @@ import { createClient } from "@/lib/supabase/client";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import imageCompression from "browser-image-compression";
+import Tesseract from "tesseract.js";
 
 const MAX_SIZE = 15 * 1024 * 1024; // Increase default limit to 15MB since we will compress it down anyway
 const ACCEPTED_TYPES = { "image/jpeg": [".jpg", ".jpeg"], "image/png": [".png"] };
@@ -49,6 +50,8 @@ export default function UploadPage() {
     compressedSize: number;
     savingPercentage: number;
   } | null>(null);
+  const [ocrText, setOcrText] = useState<string | null>(null);
+  const [ocrLoading, setOcrLoading] = useState(false);
   const supabase = createClient();
 
   const onDrop = useCallback(async (accepted: File[], rejected: FileRejection[]) => {
@@ -106,6 +109,26 @@ export default function UploadPage() {
     setPreview(null);
     setError(null);
     setCompressionStats(null);
+    setOcrText(null);
+  };
+
+  const handleOCR = async () => {
+    const fileToUse = fileToUpload || originalFile;
+    if (!fileToUse) return;
+
+    setOcrLoading(true);
+    setOcrText(null);
+    try {
+      toast.info("Extracting text from image...", { id: "ocr-toast" });
+      const result = await Tesseract.recognize(fileToUse, "eng");
+      setOcrText(result.data.text);
+      toast.success("Text extracted successfully!", { id: "ocr-toast" });
+    } catch (err) {
+      toast.error("Failed to extract text.", { id: "ocr-toast" });
+      console.error(err);
+    } finally {
+      setOcrLoading(false);
+    }
   };
 
   const handleUpload = async () => {
@@ -222,17 +245,48 @@ export default function UploadPage() {
             </div>
           )}
 
-          <Button
-            onClick={handleUpload}
-            disabled={!originalFile || uploading}
-            className="w-full bg-primary hover:bg-primary/90 h-12"
-          >
-            {uploading ? (
-              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyzing...</>
-            ) : (
-              <><Upload className="mr-2 h-4 w-4" /> Upload & Analyze</>
-            )}
-          </Button>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button
+              onClick={handleUpload}
+              disabled={!originalFile || uploading || ocrLoading}
+              className="w-full bg-primary hover:bg-primary/90 h-12 flex-1"
+            >
+              {uploading ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyzing...</>
+              ) : (
+                <><Upload className="mr-2 h-4 w-4" /> Upload & Analyze</>
+              )}
+            </Button>
+            <Button
+              onClick={handleOCR}
+              disabled={!originalFile || uploading || ocrLoading}
+              variant="outline"
+              className="w-full h-12 flex-1"
+            >
+              {ocrLoading ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Reading Tag...</>
+              ) : (
+                <><Sparkles className="mr-2 h-4 w-4 text-amber-500" /> Read Care Label (OCR)</>
+              )}
+            </Button>
+          </div>
+
+          {ocrText && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}>
+              <Card className="bg-muted/30 border-dashed">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-amber-500" /> Extracted Text
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="whitespace-pre-wrap text-sm font-mono bg-background p-3 rounded-md border">
+                    {ocrText.trim() || "No text detected."}
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
         </CardContent>
       </Card>
     </div>

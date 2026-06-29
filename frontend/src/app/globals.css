@@ -128,3 +128,26 @@
     scroll-behavior: smooth;
   }
 }
+/* Google Translate Fixes */
+.goog-te-banner-frame,
+iframe.goog-te-banner-frame,
+#goog-gt-tt,
+.goog-tooltip,
+.goog-tooltip:hover {
+  display: none !important;
+}
+.goog-text-highlight {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+body {
+  top: 0px !important;
+  position: static !important;
+}
+/* Hide the Google Logo but keep the select box perfectly intact */
+.goog-te-gadget > span > a {
+  display: none !important;
+}
+.goog-te-gadget img {
+  display: none !important;
+}

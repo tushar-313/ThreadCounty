@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from pydantic import BaseModel
 from app.core.auth import get_current_user
 from app.core.supabase import get_supabase
+import uuid
+from app.core.logging import logger
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -51,6 +53,33 @@ async def update_profile(data: ProfileUpdate, user: dict = Depends(get_current_u
 
     result = supabase.table("profiles").update(update_data).eq("id", user["id"]).execute()
     return {"profile": result.data[0] if result.data else update_data}
+
+
+@router.post("/me/avatar")
+async def upload_avatar(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
+    supabase = get_supabase()
+    if not supabase:
+        raise HTTPException(status_code=500, detail="Database not configured")
+
+    if file.content_type not in {"image/jpeg", "image/png", "image/jpg"}:
+        raise HTTPException(status_code=400, detail="Only JPG and PNG files are allowed")
+
+    content = await file.read()
+    file_path = f"avatars/{user['id']}/{uuid.uuid4()}-{file.filename}"
+
+    try:
+        supabase.storage.from_("fabric-images").upload(file_path, content, {"content-type": file.content_type})
+        file_url = supabase.storage.from_("fabric-images").get_public_url(file_path)
+    except Exception as e:
+        logger.error("Avatar upload failed", error=str(e))
+        raise HTTPException(status_code=500, detail="Failed to upload avatar")
+
+    # Update profile with new avatar URL
+    result = supabase.table("profiles").update({"avatar_url": file_url}).eq("id", user["id"]).execute()
+    if not result.data:
+        raise HTTPException(status_code=400, detail="Failed to update profile avatar")
+
+    return {"avatar_url": file_url, "profile": result.data[0]}
 
 
 @router.get("/me/activity")

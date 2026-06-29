@@ -53,7 +53,7 @@ export function DashboardNavbar({ profile }: { profile?: Profile | null }) {
           </Link>
 
           <div className="hidden items-center gap-1 md:flex">
-            {dashboardLinks.map((link) => (
+            {profile?.role !== "admin" && dashboardLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -86,6 +86,7 @@ export function DashboardNavbar({ profile }: { profile?: Profile | null }) {
         </div>
 
         <div className="flex items-center gap-2">
+          <div id="google_translate_element" className="hidden sm:flex scale-90 origin-right mr-2 items-center" suppressHydrationWarning></div>
           <ThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger className="relative h-9 w-9 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring">
@@ -105,12 +106,16 @@ export function DashboardNavbar({ profile }: { profile?: Profile | null }) {
               <DropdownMenuItem render={<Link href="/profile" />}>
                 Profile
               </DropdownMenuItem>
-              <DropdownMenuItem render={<Link href="/history" />}>
-                History
-              </DropdownMenuItem>
-              <DropdownMenuItem render={<Link href="/compare" />}>
-                Compare
-              </DropdownMenuItem>
+              {profile?.role !== "admin" && (
+                <>
+                  <DropdownMenuItem render={<Link href="/history" />}>
+                    History
+                  </DropdownMenuItem>
+                  <DropdownMenuItem render={<Link href="/compare" />}>
+                    Compare
+                  </DropdownMenuItem>
+                </>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                 <LogOut className="mr-2 h-4 w-4" />
@@ -127,7 +132,7 @@ export function DashboardNavbar({ profile }: { profile?: Profile | null }) {
       {mobileOpen && (
         <div className="border-t px-4 py-4 md:hidden">
           <div className="flex flex-col gap-1">
-            {dashboardLinks.map((link) => (
+            {profile?.role !== "admin" && dashboardLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

@@ -49,6 +49,15 @@ class ApiClient {
     return this.request("/api/users/me", { method: "PATCH", body: JSON.stringify(data) }, token);
   }
 
+  async uploadAvatar(token: string, file: File) {
+    const formData = new FormData();
+    formData.append("file", file);
+    return this.request("/api/users/me/avatar", {
+      method: "POST",
+      body: formData,
+    }, token);
+  }
+
   async getActivity(token: string) {
     return this.request("/api/users/me/activity", {}, token);
   }
@@ -99,8 +108,20 @@ class ApiClient {
     return this.request("/api/admin/messages", {}, token);
   }
 
+  async getAdminUser(token: string, userId: string) {
+    return this.request(`/api/admin/users/${userId}`, {}, token);
+  }
+
+  async getAdminUserUploads(token: string, userId: string) {
+    return this.request(`/api/admin/users/${userId}/uploads`, {}, token);
+  }
+
   async updateAdminUserRole(token: string, userId: string, role: string) {
     return this.request(`/api/admin/users/${userId}/role?role=${role}`, { method: "PATCH" }, token);
+  }
+
+  async updateAdminUserPlan(token: string, userId: string, plan: string) {
+    return this.request(`/api/admin/users/${userId}/plan?plan=${plan}`, { method: "PATCH" }, token);
   }
 
   async deleteAdminUpload(token: string, uploadId: string) {

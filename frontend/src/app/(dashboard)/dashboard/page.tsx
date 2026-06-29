@@ -17,8 +17,10 @@ import type { DashboardStats, Profile, Notification, ActivityLog } from "@/types
 import { formatDistanceToNow, subDays, format, isSameDay } from "date-fns";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -42,6 +44,10 @@ export default function DashboardPage() {
         setProfile((profileData as { profile: Profile }).profile);
         setNotifications((notifData as { notifications: Notification[] }).notifications);
         setActivity((activityData as { activity: ActivityLog[] }).activity);
+
+        if ((profileData as { profile: Profile }).profile.role === "admin") {
+          router.replace("/admin");
+        }
       } catch {
         setStats({
           total_uploads: 0,

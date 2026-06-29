@@ -1,183 +1,172 @@
-# ThreadCounty
+# ThreadCounty - AI-Powered Textile Analysis Platform
 
-**AI-Powered Textile Technology Platform**
+ThreadCounty is a next-generation textile technology platform that helps textile manufacturers, students, researchers, and quality control professionals analyze fabric structures using Artificial Intelligence and Computer Vision.
 
-ThreadCounty helps textile manufacturers, students, researchers, and quality control professionals analyze fabric structures using Artificial Intelligence and Computer Vision.
+The platform simplifies textile inspection by allowing users to upload fabric images and receive automated thread density analysis, weave information, AI insights, and downloadable reports through a modern web application.
 
-![ThreadCounty](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)
-![Python](https://img.shields.io/badge/Python-FastAPI-3776AB?style=flat-square&logo=python)
-![Supabase](https://img.shields.io/badge/Supabase-Database-3FCF8E?style=flat-square&logo=supabase)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-06B6D4?style=flat-square&logo=tailwindcss)
+---
 
-## Live Demo
+## 🔗 Links
 
-- **Website:** Deploy to [Vercel](https://vercel.com) (see Deployment section)
-- **API:** Deploy to [Railway](https://railway.app) or [Render](https://render.com)
+- **Live Hosted Website (Frontend):** [Deployed on Vercel] *(Insert your Vercel URL here)*
+- **Live API (Backend):** [Deployed on Render] *(Insert your Render URL here)*
+- **GitHub Repository:** [Insert Repo URL here]
 
-## Features
+---
 
-- **Responsive Landing Page** — Hero, features, workflow, testimonials, FAQ, contact
-- **Secure Authentication** — Sign up, login, forgot password, email verification via Supabase Auth
-- **Fabric Image Upload** — Drag & drop, preview, validation, progress tracking
-- **AI Analysis Reports** — Thread density, warp/weft counts, fabric type, confidence score, AI suggestions
-- **Upload History** — Search, filter, download, and delete previous reports
-- **User Dashboard** — Stats, recent reports, storage usage, activity timeline, notifications
-- **Admin Dashboard** — User management, upload oversight, platform analytics, contact messages
-- **Pricing Page** — Free, Student, Professional, Enterprise plans
-- **Dark/Light Mode** — System-aware theme switching
-- **Modern UI** — ShadCN UI, Framer Motion animations, fully responsive
+## ✨ Features
 
-## Tech Stack
+### 🔐 Authentication & User Management
+- Secure Sign Up and Login via Supabase Auth
+- "Forgot Password" functionality
+- "Remember Me" sessions
+- User Profile management (Update info, upload profile picture, change password)
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | Next.js 16, TypeScript, Tailwind CSS, ShadCN UI, Framer Motion |
-| Backend | Python, FastAPI, Uvicorn |
-| Database | Supabase (PostgreSQL + Auth + Storage) |
-| Deployment | Vercel (frontend), Railway/Render (backend) |
+### 📊 User Dashboard
+- **Welcome Section & Analytics:** View total uploads, storage usage, and activity timeline.
+- **Image Upload Module:** Drag & drop upload for JPG/PNG/JPEG. Includes file size validation, image preview, and progress tracking.
+- **On-the-fly Image Compression:** Automatically optimizes images before upload to save bandwidth and storage.
+- **Upload History:** View, search (including **Voice Search**), filter, and manage past analyses.
 
-## Project Structure
+### 🤖 AI Analysis & Reports
+- **Fabric Analysis:** View thread density, warp count, weft count, fabric type, and confidence score.
+- **AI Suggestions:** Get actionable insights based on the fabric structure.
+- **Report Management:** Download reports as PDFs or share them via a unique link.
+- **Fabric Comparison Tool:** Compare two different fabric analysis reports side-by-side.
 
-```
-textile/
-├── frontend/          # Next.js application
-│   ├── src/
-│   │   ├── app/       # Pages and routes
-│   │   ├── components/# UI components
-│   │   ├── lib/       # Utilities, API client, Supabase
-│   │   └── types/     # TypeScript types
-│   └── package.json
-├── backend/           # Python FastAPI server
-│   ├── app/
-│   │   ├── api/       # API route handlers
-│   │   ├── core/      # Config, auth, logging
-│   │   └── services/  # AI analysis service
-│   └── requirements.txt
-├── supabase/
-│   └── migrations/    # Database schema SQL
-└── docs/              # API & database documentation
-```
+### 🛠️ Admin Dashboard
+- **Comprehensive Management:** Dedicated secure route (`/admin`) for administrators.
+- **User Management:** View total users, manage individual user profiles, view their uploads, and update their subscription plans.
+- **Content Moderation:** View and delete uploaded images or reports across the platform.
+- **Platform Statistics:** View global analytics and metrics.
 
-## Getting Started
+### 🌟 Bonus Features Implemented
+- **Progressive Web App (PWA) & Offline Support:** Installable on mobile and desktop devices.
+- **Voice Search:** Use native browser speech recognition to search upload history.
+- **OCR Integration (Care Label Reader):** Extracts text from fabric care labels entirely in the browser using `tesseract.js`.
+- **Multi-Language Support:** Seamlessly translate the entire platform into dozens of languages via Google Translate widget.
+- **Blog Section:** A dedicated, modern blog page to showcase industry news and updates.
+- **Analytics Dashboard:** Advanced charting and data visualization for user activity.
+- **Lazy Loading:** Optimized performance using Next.js automatic lazy loading.
+
+---
+
+## 💻 Tech Stack
+
+### Frontend
+- **Framework:** React.js, Next.js (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS, ShadCN UI
+- **Animations:** Framer Motion
+- **Hosting:** Vercel
+
+### Backend
+- **Framework:** Python, FastAPI
+- **Database:** Supabase (PostgreSQL)
+- **Authentication:** Supabase Auth
+- **Storage:** Supabase Storage bucket (`fabric-images`)
+- **Hosting:** Render
+
+---
+
+## 🗄️ Database Schema
+
+The platform utilizes Supabase (PostgreSQL). Below are the core tables:
+
+### 1. `profiles`
+- `id` (UUID, Primary Key, references `auth.users`)
+- `email` (String)
+- `full_name` (String)
+- `role` (String: 'user' or 'admin')
+- `subscription_plan` (String: 'free', 'student', 'professional', 'enterprise')
+- `avatar_url` (String)
+- `storage_used_mb` (Float)
+- `storage_limit_mb` (Float)
+- `created_at` (Timestamp)
+
+### 2. `uploads`
+- `id` (UUID, Primary Key)
+- `user_id` (UUID, references `profiles(id)`)
+- `file_name` (String)
+- `file_url` (String)
+- `file_size_bytes` (Integer)
+- `content_type` (String)
+- `created_at` (Timestamp)
+
+### 3. `reports`
+- `id` (UUID, Primary Key)
+- `upload_id` (UUID, references `uploads(id)`)
+- `user_id` (UUID, references `profiles(id)`)
+- `thread_density` (Float)
+- `warp_count` (Integer)
+- `weft_count` (Integer)
+- `fabric_type` (String)
+- `confidence_score` (Float)
+- `ai_suggestions` (Array of Strings)
+- `created_at` (Timestamp)
+
+### 4. `activity_logs` & `notifications`
+- Track user actions and system notifications.
+
+---
+
+## 📡 API Documentation
+
+The backend is built with FastAPI. Complete interactive API documentation (Swagger UI) is available at `/docs` on the backend server.
+
+### Key Endpoints
+- **Authentication:** Handled client-side via Supabase JS client.
+- **Users API:**
+  - `GET /users/me`: Fetch current user profile.
+  - `PATCH /users/me`: Update profile details.
+  - `POST /users/me/avatar`: Upload and update profile picture.
+- **Uploads API:**
+  - `POST /analyze`: Accepts an image file, uploads it to Supabase Storage, runs mock AI analysis, and generates a report.
+- **Reports API:**
+  - `GET /reports`: Fetch all reports for the user (supports search & filters).
+  - `GET /reports/{id}`: Fetch a specific report.
+  - `DELETE /reports/{id}`: Delete a report and its associated image.
+  - `GET /reports/{id}/download`: Download report content.
+- **Admin API:**
+  - `GET /admin/users`: Fetch all platform users.
+  - `GET /admin/users/{user_id}`: Fetch a specific user's details and uploads.
+  - `PATCH /admin/users/{user_id}/role`: Update a user's role/subscription.
+- **Contact API:**
+  - `POST /contact`: Submit a contact form message.
+
+---
+
+## 🚀 Running Locally
 
 ### Prerequisites
+- Node.js (v18+)
+- Python 3.10+
+- Supabase Project
 
-- Node.js 18+
-- Python 3.11+
-- Supabase account ([supabase.com](https://supabase.com))
+### Frontend Setup
+1. `cd frontend`
+2. `npm install`
+3. Create a `.env.local` file with your Supabase credentials:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+4. `npm run dev`
 
-### 1. Clone the Repository
+### Backend Setup
+1. `cd backend`
+2. Create a virtual environment and install dependencies:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+3. Create a `.env` file:
+   ```env
+   SUPABASE_URL=your_supabase_url
+   SUPABASE_KEY=your_supabase_service_role_key
+   ```
+4. `uvicorn app.main:app --reload`
 
-```bash
-git clone https://github.com/yourusername/threadcounty.git
-cd threadcounty
-```
-
-### 2. Set Up Supabase
-
-1. Create a new Supabase project
-2. Go to **SQL Editor** and run `supabase/migrations/001_initial_schema.sql`
-3. Go to **Settings → API** and copy your URL and keys
-4. Enable **Email Auth** in Authentication settings
-
-### 3. Configure Environment Variables
-
-**Frontend** (`frontend/.env.local`):
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
-**Backend** (`backend/.env`):
-
-```env
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_KEY=your-service-role-key
-SUPABASE_JWT_SECRET=your-jwt-secret
-CORS_ORIGINS=http://localhost:3000
-ENVIRONMENT=development
-```
-
-### 4. Run the Backend
-
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
-```
-
-### 5. Run the Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-### 6. Create an Admin User
-
-After signing up, promote your account to admin in Supabase SQL Editor:
-
-```sql
-UPDATE profiles SET role = 'admin' WHERE email = 'your@email.com';
-```
-
-## Deployment
-
-### Frontend (Vercel)
-
-1. Push to GitHub
-2. Import project in [Vercel](https://vercel.com)
-3. Set root directory to `frontend`
-4. Add environment variables
-5. Deploy
-
-### Backend (Railway)
-
-1. Create new project in [Railway](https://railway.app)
-2. Connect GitHub repo, set root to `backend`
-3. Add environment variables
-4. Railway auto-detects the `Procfile`
-
-### Backend (Render)
-
-1. Create Web Service in [Render](https://render.com)
-2. Set build command: `pip install -r requirements.txt`
-3. Set start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-
-## API Documentation
-
-See [docs/API.md](docs/API.md) for full API reference.
-
-## Database Schema
-
-See [docs/DATABASE.md](docs/DATABASE.md) for schema details and ERD.
-
-## Pages
-
-| Page | Route | Description |
-|------|-------|-------------|
-| Landing | `/` | Marketing homepage |
-| Login | `/login` | User authentication |
-| Sign Up | `/signup` | Account creation |
-| Forgot Password | `/forgot-password` | Password reset |
-| Dashboard | `/dashboard` | User overview |
-| Upload | `/upload` | Fabric image upload |
-| Report | `/reports/[id]` | AI analysis results |
-| History | `/history` | Previous analyses |
-| Profile | `/profile` | Account settings |
-| Admin | `/admin` | Admin dashboard |
-| Pricing | `/pricing` | Subscription plans |
-| About | `/about` | Company info |
-| Contact | `/contact` | Contact form |
-| FAQ | `/faq` | Help center |
-
-## License
-
-MIT License — see [LICENSE](LICENSE) for details.
+---
+*Built for the Hackathon - ThreadCounty Team*

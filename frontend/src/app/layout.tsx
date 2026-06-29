@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
+import Script from "next/script";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
@@ -22,6 +23,13 @@ export const metadata: Metadata = {
     description: "Analyze fabric structures with AI and computer vision.",
     type: "website",
   },
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "ThreadCounty",
+  },
+  themeColor: "#000000",
 };
 
 export default function RootLayout({
@@ -36,6 +44,19 @@ export default function RootLayout({
           {children}
           <Toaster richColors position="top-right" />
         </ThemeProvider>
+        
+        {/* Google Translate Script */}
+        <Script id="google-translate-init" strategy="beforeInteractive">
+          {`
+            window.googleTranslateElementInit = function() {
+              new window.google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+            }
+          `}
+        </Script>
+        <Script 
+          src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+          strategy="afterInteractive" 
+        />
       </body>
     </html>
   );

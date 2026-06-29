@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Search, Trash2, Download, Eye, Filter, Scale } from "lucide-react";
+import { Search, Trash2, Download, Eye, Filter, Scale, Mic, MicOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,7 @@ export default function HistoryPage() {
   // Comparison States
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [compareOpen, setCompareOpen] = useState(false);
+  const [listening, setListening] = useState(false);
 
   const supabase = createClient();
 
@@ -111,6 +112,43 @@ export default function HistoryPage() {
   const reportA = selectedReports[0] || null;
   const reportB = selectedReports[1] || null;
 
+  const startVoiceSearch = () => {
+    // @ts-expect-error - Web Speech API
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error("Voice search is not supported in your browser.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = "en-US";
+
+    recognition.onstart = () => {
+      setListening(true);
+      toast.info("Listening... Speak now");
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setSearch(transcript);
+      toast.success("Voice input applied!");
+    };
+
+    recognition.onerror = () => {
+      toast.error("Voice recognition failed.");
+      setListening(false);
+    };
+
+    recognition.onend = () => {
+      setListening(false);
+    };
+
+    recognition.start();
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 relative">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
@@ -123,10 +161,19 @@ export default function HistoryPage() {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search by fabric type..."
-            className="pl-10"
+            className="pl-10 pr-10"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          <button
+            type="button"
+            onClick={startVoiceSearch}
+            className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors ${
+              listening ? "text-primary animate-pulse" : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {listening ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
+          </button>
         </div>
         <Select value={fabricFilter} onValueChange={(v) => setFabricFilter(v ?? "all")}>
           <SelectTrigger className="w-full sm:w-48">

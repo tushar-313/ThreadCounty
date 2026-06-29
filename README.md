@@ -167,4 +167,4 @@ The backend is built with FastAPI. Complete interactive API documentation (Swagg
 4. `uvicorn app.main:app --reload`
 
 ---
-*Built for the Hackathon - ThreadCounty Team*
+
